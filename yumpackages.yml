@@ -11,7 +11,7 @@
       register: yum_update_cache
     
     - name: List installed packages
-      command: rpm -qa
+      command: yum list all
       register: installed_packages
       
     - name: Display installed packages
