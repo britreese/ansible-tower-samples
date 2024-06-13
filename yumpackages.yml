@@ -1,6 +1,6 @@
 ---
 - name: List installed yum packages
-  hosts: your_target_vm
+  hosts: all
   become: true
   
   tasks:
