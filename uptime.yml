@@ -1,0 +1,30 @@
+ - hosts: all
+    ignore_errors: true
+    vars:
+           FQDN: "{{inventory_hostname}}"
+           LOGFILE: "/etc/ansible/all/ansible_logs/uptime-{{ansible_date_time.date}}-{{HB}}"
+    tasks:
+         - name: "Running Shell Script"
+           shell: |
+                  ACTION="{{ACTION}}";
+
+                  if [[ -z $ACTION ]];then
+                      exit 0;
+                  fi
+
+                  if [[ $ACTION == "days" ]];then
+                      CHECKDAYS=$(uptime | awk '{print $4}' | tr -d ',')
+                      if [[ $CHECKDAYS == "days" ]]; then
+                          uptime | awk '{print $3, $4}' | tr -d ','
+                      else
+                          uptime | awk '{print $1, $2, $3}' | tr -d ','
+                      fi
+                  elif [[ $ACTION == "full" ]];then
+                      uptime
+                  fi
+
+           ignore_errors: true
+           register: OUTPUT
+
+         - debug:
+               var: OUTPUT.stdout
