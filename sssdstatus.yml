@@ -1,0 +1,34 @@
+---
+  - hosts: "{{HB}}"
+    ignore_errors: true
+    vars:
+           FQDN: "{{inventory_hostname}}"
+           LOGFILE: "/etc/ansible/all/ansible_logs/sssdStatus-{{ansible_date_time.date}}-{{HB}}"
+    tasks:
+         - name: "Check if sssd is running"
+           shell: |
+                  RHELOS=$(cat /etc/redhat-release|awk '{print $6}'|cut -d . -f 1);
+                  if [[ $RHELOS == "9" ]];then
+                      VERSION="9";
+                  elif [[ $RHELOS == "8" ]];then
+                      VERSION="8";
+                  else
+                      VERSION=$(cat /etc/redhat-release|awk '{print $7}'|cut -d . -f 1);
+                  fi
+
+                  if [[ $VERSION == "6" ]];then
+                      SYSCMD=$(service sssd status | grep -E "Active: failed|Active: inactive \(dead\)");
+                  else
+                      SYSCMD=$(systemctl status sssd | grep -E "Active: failed|Active: inactive \(dead\)");
+                  fi
+                  if [[ $SYSCMD == "" ]];then
+                      echo "{{FQDN}}: sssd is running"
+                  else
+                      echo "{{FQDN}}: sssd is not running"
+                  fi
+
+           ignore_errors: true
+           register: OUTPUT
+
+         - debug:
+               var: OUTPUT.stdout
