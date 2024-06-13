@@ -1,31 +1,33 @@
 ---
- - hosts: all
-    ignore_errors: true
-    vars:
-           FQDN: "{{inventory_hostname}}"
-           LOGFILE: "/etc/ansible/all/ansible_logs/uptime-{{ansible_date_time.date}}-{{HB}}"
-    tasks:
-         - name: "Running Shell Script"
-           shell: |
-                  ACTION="{{ACTION}}";
+- hosts: all
+  vars:
+    FQDN: "{{ inventory_hostname }}"
+  tasks:
+    - name: "Running Shell Script"
+      shell: |
+        # Assigning the ACTION variable
+        ACTION="{{ ACTION }}";
 
-                  if [[ -z $ACTION ]];then
-                      exit 0;
-                  fi
+        # If ACTION is not set, exit the script
+        if [[ -z $ACTION ]]; then
+          exit 0;
+        fi
 
-                  if [[ $ACTION == "days" ]];then
-                      CHECKDAYS=$(uptime | awk '{print $4}' | tr -d ',')
-                      if [[ $CHECKDAYS == "days" ]]; then
-                          uptime | awk '{print $3, $4}' | tr -d ','
-                      else
-                          uptime | awk '{print $1, $2, $3}' | tr -d ','
-                      fi
-                  elif [[ $ACTION == "full" ]];then
-                      uptime
-                  fi
+        # If ACTION is "days", check the uptime and print in a specific format
+        if [[ $ACTION == "days" ]]; then
+          CHECKDAYS=$(uptime | awk '{print $4}' | tr -d ',')
+          if [[ $CHECKDAYS == "days" ]]; then
+            uptime | awk '{print $3, $4}' | tr -d ','
+          else
+            uptime | awk '{print $1, $2, $3}' | tr -d ','
+          fi
+        # If ACTION is "full", print the full uptime
+        elif [[ $ACTION == "full" ]]; then
+          uptime
+        fi
+      ignore_errors: true
+      register: OUTPUT
 
-           ignore_errors: true
-           register: OUTPUT
+    - debug:
+        var: OUTPUT.stdout
 
-         - debug:
-               var: OUTPUT.stdout
