@@ -12,7 +12,4 @@
            args:
            ignore_errors: true
            register: OUTPUT
-      
-    - name: Display installed packages
-      debug:
-        var: installed_packages.stdout_lines
+...
