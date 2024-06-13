@@ -1,0 +1,19 @@
+---
+- name: List installed yum packages
+  hosts: your_target_vm
+  become: true
+  
+  tasks:
+    - name: Update yum cache
+      yum:
+        name: '*'
+        state: latest
+      register: yum_update_cache
+    
+    - name: List installed packages
+      command: rpm -qa
+      register: installed_packages
+      
+    - name: Display installed packages
+      debug:
+        var: installed_packages.stdout_lines
